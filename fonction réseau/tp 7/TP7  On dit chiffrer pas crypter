@@ -1,0 +1,133 @@
+II. Serveur Web
+
+🌞 Lister les ports en écoute sur la machine
+```
+[kilian@web1 ~]$ sudo ss -lnpt |grep 80
+LISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=1607,fd=6),("nginx",pid=1606,fd=6))
+LISTEN 0      511             [::]:80           [::]:*    users:(("nginx",pid=1607,fd=7),("nginx",pid=1606,fd=7))
+```
+
+🌞 Ouvrir le port dans le firewall de la machine
+```
+[kilian@web1 ~]$ sudo firewall-cmd --permanent --add-port=80/tcp
+[sudo] password for kilian:
+success
+[kilian@web1 ~]$ sudo firewall-cmd --reload
+success
+```
+
+🌞 Vérifier que ça a pris effet
+
+faites un ping vers sitedefou.tp7.b1 :
+```
+[kilian@client1 ~]$ ping 10.7.1.11
+PING 10.7.1.11 (10.7.1.11) 56(84) bytes of data.
+64 bytes from 10.7.1.11: icmp_seq=1 ttl=64 time=1.91 ms
+64 bytes from 10.7.1.11: icmp_seq=2 ttl=64 time=0.889 ms
+64 bytes from 10.7.1.11: icmp_seq=3 ttl=64 time=0.947 ms
+```
+visitez http://sitedefou.tp7.b1
+```
+[kilian@client1 ~]$ curl  http://sitedefou.tp7.b1
+meow !
+```
+
+🌞 Capture tcp_http.pcap
+
+voir le document tcp_http.pcap
+
+🌞 Voir la connexion établie
+```
+[kilian@client1 ~]$ while :; do  ss -tpn | grep ':80'; done
+ESTAB 0      0         10.7.1.101:54328    10.7.1.11:80   users:(("curl",pid=18812,fd=5))
+```
+
+2. On rajoute un S
+
+🌞 Lister les ports en écoute sur la machine
+```
+[kilian@web1 ~]$ sudo ss -lnpt | grep 443
+LISTEN 0      511        10.7.1.11:443       0.0.0.0:*    users:(("nginx",pid=1411,fd=6),("nginx",pid=1410,fd=6))
+```
+
+🌞 Gérer le firewall
+ouvrir le nouveau port sur lequel NGINX écoute pour HTTPS :
+```
+[kilian@web1 ~]$ sudo firewall-cmd --permanent --add-port=443/tcp
+success
+```
+fermer l'ancien port qui était utilisé pour HTTP :
+```
+[kilian@web1 ~]$ sudo firewall-cmd --permanent --remove-port=80/tcp
+success
+[kilian@web1 ~]$ sudo firewall-cmd --reload
+success
+```
+
+B. Test test test analyyyze
+
+🌞 Capture tcp_https.pcap
+
+voir le document tcp_https.pcap
+
+III. Serveur VPN
+
+🌞 Prouvez que vous avez bien une nouvelle carte réseau wg0
+```
+[kilian@vpn ~]$ ip a
+5: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 10.7.200.1/24 scope global wg0
+       valid_lft forever preferred_lft forever
+```
+
+🌞 Déterminer sur quel port écoute Wireguard
+```
+[kilian@vpn ~]$ sudo ss -lnpu | grep 51820
+UNCONN 0      0            0.0.0.0:51820      0.0.0.0:*
+UNCONN 0      0               [::]:51820         [::]:*
+```
+
+🌞 Ouvrez ce port dans le firewall
+```
+
+```
+
+3. Proofs
+
+🌞 Ping ping ping !
+```
+[root@client1 kilian]# ping 10.7.200.1
+PING 10.7.200.1 (10.7.200.1) 56(84) bytes of data.
+64 bytes from 10.7.200.1: icmp_seq=1 ttl=64 time=2.13 ms
+64 bytes from 10.7.200.1: icmp_seq=2 ttl=64 time=1.45 ms
+64 bytes from 10.7.200.1: icmp_seq=3 ttl=64 time=1.18 ms
+64 bytes from 10.7.200.1: icmp_seq=4 ttl=64 time=1.82 ms
+```
+
+🌞 Capture ping1_vpn.pcap
+
+
+🌞 Capture ping2_vpn.pcap
+
+🌞Prouvez que vous avez toujours un accès internet
+```
+[kilian@client1 ~]$ traceroute 1.1.1.1
+traceroute to 1.1.1.1 (1.1.1.1), 30 hops max, 60 byte packets
+ 1  _gateway (10.7.200.1)  4.271 ms  5.043 ms  5.034 ms
+ 2  * * *
+ 3  10.0.3.2 (10.0.3.2)  10.891 ms  10.777 ms  10.759 ms
+ 4  * * *
+ 5  * * *
+ 6  * * *
+ 7  * * *
+ 8  * * *
+ 9  * * *
+10  * * *
+```
+
+4. Private service
+
+
+
+
